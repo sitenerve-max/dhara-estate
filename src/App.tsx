@@ -99,6 +99,15 @@ export default function App() {
           viewport: { once: true, amount: 0.2 },
           transition: { duration: 0.45, delay, ease: [0.16, 1, 0.3, 1] as const },
         };
+  const cardCornerReveal = (delay = 0) =>
+    prefersReducedMotion
+      ? { initial: false }
+      : {
+          initial: { opacity: 0, scaleX: 0 },
+          whileInView: { opacity: 1, scaleX: 1 },
+          viewport: { once: true, amount: 0.2 },
+          transition: { duration: 0.35, delay, ease: [0.16, 1, 0.3, 1] as const },
+        };
 
   return (
     <MotionConfig reducedMotion="user">
@@ -113,12 +122,12 @@ export default function App() {
       >
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#C86D51] animate-pulse"></span>
-            <span className="font-medium text-[#FAF8F5]">Client-Ready Real Estate Concept:</span>
+            <span className={`inline-block w-2 h-2 rounded-full bg-[#C86D51] ${prefersReducedMotion ? '' : 'animate-pulse'}`}></span>
+            <span className="font-medium text-[#FAF8F5]">Website Concept:</span>
             <span className="text-[#A1A1AA]">Prepared for Dhaara Estate Maninagar by SiteNerve</span>
           </div>
           <div className="flex items-center gap-4 text-[11px] text-[#D4B996]">
-            <span>Public Listing Verified</span>
+            <span>Public Listing Reference</span>
             <span className="hidden md:inline">•</span>
             <span className="hidden md:inline">Maninagar, Ahmedabad</span>
             <a 
@@ -335,7 +344,7 @@ export default function App() {
                 {/* Editorial Sub-badge */}
                 <motion.div {...reveal(0, 12)} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EFE9DF] border border-[#D8CEBF] text-xs font-medium text-[#6B5E51]">
                   <span className="w-2 h-2 rounded-full bg-[#C86D51]"></span>
-                  <span className="tracking-wide uppercase font-semibold">Verified Agency Profile</span>
+                  <span className="tracking-wide uppercase font-semibold">Website Concept</span>
                   <span className="text-[#A1A1AA]">•</span>
                   <span>Maninagar, Ahmedabad</span>
                 </motion.div>
@@ -345,7 +354,7 @@ export default function App() {
                     Property guidance with a clearer next step.
                   </h1>
                   <p className="text-lg sm:text-xl text-[#525753] leading-relaxed max-w-2xl">
-                    A focused digital presence for Dhaara Estate Maninagar, built around local property enquiries and direct communication.
+                    A website concept for Dhaara Estate Maninagar, built around planned property enquiries and direct communication.
                   </p>
                 </motion.div>
 
@@ -376,7 +385,7 @@ export default function App() {
                 {/* Verified facts teaser */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-[#E8E2D9]">
                   <div className="space-y-1">
-                    <span className="text-xs uppercase tracking-wider text-[#8A7B6B] block">Category</span>
+                    <span className="text-xs uppercase tracking-wider text-[#8A7B6B] block">Public Listing Category</span>
                     <p className="text-sm font-semibold text-[#18181B]">Real Estate Agent</p>
                   </div>
                   <div className="space-y-1">
@@ -404,7 +413,7 @@ export default function App() {
 
                   {/* SVG Abstract Architectural & Plot Composition */}
                   <div className="relative aspect-4/3 rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-4 flex items-center justify-center overflow-hidden">
-                    <motion.svg
+                    <svg
                       className="w-full h-full" 
                       viewBox="0 0 400 300" 
                       fill="none" 
@@ -470,7 +479,7 @@ export default function App() {
                       {/* Map Coordinate Marker Node */}
                       <circle cx="210" cy="60" r="4" fill="#C86D51" />
                       <circle cx="210" cy="60" r="10" stroke="#C86D51" strokeWidth="1" strokeOpacity="0.4" />
-                    </motion.svg>
+                    </svg>
 
                     {/* Floating architectural caption */}
                     <div className="absolute bottom-3 left-3 bg-[#18181B]/90 backdrop-blur-xs text-[#FAF8F5] text-[10px] px-2.5 py-1 rounded-sm font-mono border border-[#3E423F]">
@@ -514,7 +523,7 @@ export default function App() {
                 </div>
                 <span className="text-xs uppercase tracking-widest text-[#8A7B6B] font-semibold block">Business Name</span>
                 <h3 className="text-lg font-bold text-[#18181B]">Dhaara Estate Maninagar</h3>
-                <p className="text-xs text-[#525753]">Registered as Real Estate Consultancy</p>
+                <p className="text-xs text-[#525753]">Website concept reference</p>
               </div>
 
               {/* Location Card */}
@@ -532,9 +541,9 @@ export default function App() {
                 <div className="w-8 h-8 rounded-sm bg-[#EFE9DF] flex items-center justify-center text-[#C86D51] mb-3">
                   <Layers className="w-4 h-4" />
                 </div>
-                <span className="text-xs uppercase tracking-widest text-[#8A7B6B] font-semibold block">Verified Category</span>
+                <span className="text-xs uppercase tracking-widest text-[#8A7B6B] font-semibold block">Public Listing Category</span>
                 <h3 className="text-lg font-bold text-[#18181B]">Real Estate Agent</h3>
-                <p className="text-xs text-[#525753]">Google Maps Business Classification</p>
+                <p className="text-xs text-[#525753]">Google Maps listing category</p>
               </div>
 
               {/* Public Phone Card */}
@@ -558,7 +567,7 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <HelpCircle className="w-4 h-4 text-[#8A7B6B] shrink-0" />
                 <span>
-                  <strong>Integrity standard:</strong> No fabricated review counts, stars, or unverified claims are rendered. Only the official Google Maps phone and categorical records are cited.
+                  <strong>Integrity standard:</strong> No fabricated review counts, stars, property details, or unverified claims are rendered. This concept references the public phone number and Google Maps listing category only.
                 </span>
               </div>
               <a
@@ -581,31 +590,32 @@ export default function App() {
                 Service Framework
               </div>
               <h2 id="services-heading" className="font-editorial text-3xl sm:text-4xl font-medium text-[#18181B]">
-                Possible website journeys to confirm with Dhaara Estate
+                Planned enquiry journeys to confirm with Dhaara Estate
               </h2>
               <p className="text-base text-[#525753] leading-relaxed">
-                As a real estate agency in Maninagar, these three functional pathways represent how clients would intuitively explore, inquire, and connect once verified with Dhaara Estate.
+                These planned enquiry journeys show how visitors could outline a requirement and connect through the verified public phone. Details to be confirmed with Dhaara Estate.
               </p>
             </div>
 
             {/* Three Service Journey Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Card 1: Property Buying Assistance */}
-              <motion.div {...reveal(0)} className="rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between group">
+              <motion.div {...reveal(0)} className="relative overflow-hidden rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between group">
+                <motion.span {...cardCornerReveal(0.1)} aria-hidden="true" className="absolute right-0 top-0 h-px w-16 origin-right bg-[#C86D51]" />
                 <div className="space-y-4">
                   <div className="w-12 h-12 rounded-md bg-[#1B2430] flex items-center justify-center text-[#D4B996] group-hover:bg-[#C86D51] group-hover:text-white transition-colors">
                     <Building2 className="w-6 h-6" />
                   </div>
                   <div>
                     <span className="text-[11px] uppercase tracking-widest text-[#8A7B6B] font-mono block mb-1">Journey 01</span>
-                    <h3 className="text-xl font-bold text-[#18181B]">Property Buying Assistance</h3>
+                    <h3 className="text-xl font-bold text-[#18181B]">Planned Buying Enquiry</h3>
                   </div>
                   <p className="text-sm text-[#525753] leading-relaxed">
-                    Designed for individuals, families, and commercial seekers navigating residential apartments, tenements, or commercial spaces in Maninagar and adjacent Ahmedabad sectors.
+                    A planned enquiry journey for people exploring residential, commercial, or land requirements in and around Maninagar.
                   </p>
                   
                   <div className="pt-4 border-t border-[#E8E2D9] space-y-2.5">
-                    <span className="text-xs font-semibold text-[#18181B] block">How this journey assists clients:</span>
+                    <span className="text-xs font-semibold text-[#18181B] block">What to outline in this enquiry:</span>
                     <ul className="text-xs text-[#525753] space-y-2">
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#C86D51] mt-0.5 shrink-0" />
@@ -617,7 +627,7 @@ export default function App() {
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#C86D51] mt-0.5 shrink-0" />
-                        <span>Ask about current market availability in Maninagar</span>
+                        <span>Discuss current availability directly by phone</span>
                       </li>
                     </ul>
                   </div>
@@ -626,7 +636,7 @@ export default function App() {
                 <div className="mt-8 pt-6 border-t border-[#E8E2D9]">
                   <a
                     href={PHONE_TEL}
-                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-semibold rounded-sm bg-[#EFE9DF] text-[#18181B] hover:bg-[#1B2430] hover:text-white transition-all"
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-semibold rounded-sm bg-[#EFE9DF] text-[#18181B] hover:bg-[#1B2430] hover:text-white transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]"
                   >
                     <Phone className="w-3.5 h-3.5" />
                     Inquire About Buying: {PHONE_NUMBER}
@@ -635,33 +645,34 @@ export default function App() {
               </motion.div>
 
               {/* Card 2: Property Selling Assistance */}
-              <motion.div {...reveal(0.08)} className="rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between group">
+              <motion.div {...reveal(0.08)} className="relative overflow-hidden rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between group">
+                <motion.span {...cardCornerReveal(0.18)} aria-hidden="true" className="absolute right-0 top-0 h-px w-16 origin-right bg-[#C86D51]" />
                 <div className="space-y-4">
                   <div className="w-12 h-12 rounded-md bg-[#1B2430] flex items-center justify-center text-[#D4B996] group-hover:bg-[#C86D51] group-hover:text-white transition-colors">
                     <Layers className="w-6 h-6" />
                   </div>
                   <div>
                     <span className="text-[11px] uppercase tracking-widest text-[#8A7B6B] font-mono block mb-1">Journey 02</span>
-                    <h3 className="text-xl font-bold text-[#18181B]">Property Selling Assistance</h3>
+                    <h3 className="text-xl font-bold text-[#18181B]">Planned Selling Enquiry</h3>
                   </div>
                   <p className="text-sm text-[#525753] leading-relaxed">
-                    Designed for property owners seeking local valuation guidance, documentation orientation, and direct outreach to verified buyers across the Ahmedabad network.
+                    A planned enquiry journey for property owners who want to share details and discuss next steps directly with Dhaara Estate.
                   </p>
                   
                   <div className="pt-4 border-t border-[#E8E2D9] space-y-2.5">
-                    <span className="text-xs font-semibold text-[#18181B] block">How this journey assists clients:</span>
+                    <span className="text-xs font-semibold text-[#18181B] block">What to outline in this enquiry:</span>
                     <ul className="text-xs text-[#525753] space-y-2">
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#C86D51] mt-0.5 shrink-0" />
-                        <span>Register property details and ownership specs</span>
+                        <span>Share property details for discussion</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#C86D51] mt-0.5 shrink-0" />
-                        <span>Discuss localized Maninagar price trends directly</span>
+                        <span>Outline locality and timing considerations</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#C86D51] mt-0.5 shrink-0" />
-                        <span>Schedule an advisory consultation with Dhaara Estate</span>
+                        <span>Discuss next steps by phone</span>
                       </li>
                     </ul>
                   </div>
@@ -670,7 +681,7 @@ export default function App() {
                 <div className="mt-8 pt-6 border-t border-[#E8E2D9]">
                   <a
                     href={PHONE_TEL}
-                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-semibold rounded-sm bg-[#EFE9DF] text-[#18181B] hover:bg-[#1B2430] hover:text-white transition-all"
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-semibold rounded-sm bg-[#EFE9DF] text-[#18181B] hover:bg-[#1B2430] hover:text-white transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]"
                   >
                     <Phone className="w-3.5 h-3.5" />
                     Inquire About Selling: {PHONE_NUMBER}
@@ -679,21 +690,22 @@ export default function App() {
               </motion.div>
 
               {/* Card 3: Rental Enquiries */}
-              <motion.div {...reveal(0.16)} className="rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between group">
+              <motion.div {...reveal(0.16)} className="relative overflow-hidden rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between group">
+                <motion.span {...cardCornerReveal(0.26)} aria-hidden="true" className="absolute right-0 top-0 h-px w-16 origin-right bg-[#C86D51]" />
                 <div className="space-y-4">
                   <div className="w-12 h-12 rounded-md bg-[#1B2430] flex items-center justify-center text-[#D4B996] group-hover:bg-[#C86D51] group-hover:text-white transition-colors">
                     <Search className="w-6 h-6" />
                   </div>
                   <div>
                     <span className="text-[11px] uppercase tracking-widest text-[#8A7B6B] font-mono block mb-1">Journey 03</span>
-                    <h3 className="text-xl font-bold text-[#18181B]">Rental Enquiries</h3>
+                    <h3 className="text-xl font-bold text-[#18181B]">Planned Rental Enquiry</h3>
                   </div>
                   <p className="text-sm text-[#525753] leading-relaxed">
-                    Designed for tenants seeking reliable rental accommodations or landlords seeking tenant screening and rental agreement coordination in Maninagar.
+                    A planned enquiry journey for people exploring rental requirements in Maninagar.
                   </p>
                   
                   <div className="pt-4 border-t border-[#E8E2D9] space-y-2.5">
-                    <span className="text-xs font-semibold text-[#18181B] block">How this journey assists clients:</span>
+                    <span className="text-xs font-semibold text-[#18181B] block">What to outline in this enquiry:</span>
                     <ul className="text-xs text-[#525753] space-y-2">
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#C86D51] mt-0.5 shrink-0" />
@@ -701,11 +713,11 @@ export default function App() {
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#C86D51] mt-0.5 shrink-0" />
-                        <span>Confirm rental expectations directly over phone</span>
+                        <span>Outline rental requirements for discussion</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#C86D51] mt-0.5 shrink-0" />
-                        <span>Ask about immediate move-in possibilities</span>
+                        <span>Confirm relevant details directly by phone</span>
                       </li>
                     </ul>
                   </div>
@@ -714,7 +726,7 @@ export default function App() {
                 <div className="mt-8 pt-6 border-t border-[#E8E2D9]">
                   <a
                     href={PHONE_TEL}
-                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-semibold rounded-sm bg-[#EFE9DF] text-[#18181B] hover:bg-[#1B2430] hover:text-white transition-all"
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-semibold rounded-sm bg-[#EFE9DF] text-[#18181B] hover:bg-[#1B2430] hover:text-white transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]"
                   >
                     <Phone className="w-3.5 h-3.5" />
                     Inquire About Rentals: {PHONE_NUMBER}
@@ -726,7 +738,7 @@ export default function App() {
             {/* Note on zero fake inventory */}
             <div className="mt-10 text-center">
               <p className="text-xs text-[#8A7B6B] max-w-xl mx-auto">
-                Note: No unconfirmed or fictitious property listings are published here. All property availability is confirmed directly with Dhaara Estate upon enquiry.
+                Note: No property listings, availability, prices, or photos are published in this website concept. Details are to be confirmed directly with Dhaara Estate.
               </p>
             </div>
           </div>
@@ -756,7 +768,7 @@ export default function App() {
                 </div>
                 <h3 className="text-lg font-bold text-[#18181B]">Clear local business identity</h3>
                 <p className="text-sm text-[#525753] leading-relaxed">
-                  Establishes a verified, professional online destination specifically tied to Maninagar, distinguishing Dhaara Estate from anonymous aggregate portals.
+                  Creates a clear online destination for this website concept, tied to Maninagar and the public listing reference.
                 </p>
               </div>
 
@@ -767,7 +779,7 @@ export default function App() {
                 </div>
                 <h3 className="text-lg font-bold text-[#18181B]">Direct call action</h3>
                 <p className="text-sm text-[#525753] leading-relaxed">
-                  Empowers clients to connect instantly with the public line {PHONE_NUMBER} in one touch, cutting out commission lead-aggregators and middlemen.
+                  Gives visitors a direct path to the public phone number {PHONE_NUMBER} from the website concept.
                 </p>
               </div>
 
@@ -778,7 +790,7 @@ export default function App() {
                 </div>
                 <h3 className="text-lg font-bold text-[#18181B]">Google Maps location</h3>
                 <p className="text-sm text-[#525753] leading-relaxed">
-                  Seamlessly integrates the official Google Maps pin, giving clients reliable driving directions and geographic clarity across Ahmedabad.
+                  Links to the public Google Maps business listing for location reference and navigation.
                 </p>
               </div>
 
@@ -800,7 +812,7 @@ export default function App() {
                 </div>
                 <h3 className="text-lg font-bold text-[#18181B]">Future-ready property catalogue</h3>
                 <p className="text-sm text-[#525753] leading-relaxed">
-                  Clean architectural framework built to showcase verified property photography and architectural floor plans when Dhaara Estate publishes listings.
+                  An architectural framework reserved for future owner-approved property details, if Dhaara Estate chooses to publish them.
                 </p>
               </div>
 
@@ -811,7 +823,7 @@ export default function App() {
                 </div>
                 <h3 className="text-lg font-bold text-[#18181B]">Easy-to-update service sections</h3>
                 <p className="text-sm text-[#525753] leading-relaxed">
-                  Modern, modular structure allowing quick adjustments as new advisory capabilities, office locations, or consultation hours are added.
+                  A modular structure that can be updated when owner-approved services, contact details, or availability information is supplied.
                 </p>
               </div>
             </div>
@@ -848,7 +860,7 @@ export default function App() {
                   </h2>
 
                   <p className="text-base sm:text-lg text-[#C5CCD6] leading-relaxed max-w-2xl">
-                    Located in Maninagar, Ahmedabad, Gujarat. Whether you are seeking a residential home, evaluating a plot, or exploring commercial spaces, direct communication with a local agent gives you clear ground realities.
+                    The public listing places Dhaara Estate in Maninagar, Ahmedabad, Gujarat. Property requirements and business details are to be confirmed directly with Dhaara Estate.
                   </p>
 
                   <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
@@ -931,7 +943,7 @@ export default function App() {
                 Let’s discuss your property requirement.
               </h2>
               <p className="text-base sm:text-lg text-[#525753] max-w-xl mx-auto">
-                Connect directly with Dhaara Estate Maninagar for honest property guidance, local availability, and consultation.
+                Use the verified public phone to discuss a planned enquiry journey and confirm relevant details with Dhaara Estate.
               </p>
             </div>
 
@@ -945,13 +957,13 @@ export default function App() {
                       <Phone className="w-6 h-6" />
                     </div>
                     <div>
-                      <span className="text-xs uppercase tracking-widest text-[#8A7B6B] font-semibold block">Official Telephone</span>
+                      <span className="text-xs uppercase tracking-widest text-[#8A7B6B] font-semibold block">Public Telephone</span>
                       <h3 className="text-2xl font-bold text-[#18181B] font-mono">{PHONE_NUMBER}</h3>
                     </div>
                   </div>
 
                   <p className="text-sm text-[#525753] leading-relaxed">
-                    The verified public phone number for Dhaara Estate Maninagar. Tap below to place a direct call.
+                    The public phone number used for this website concept. Tap below to place a direct call.
                   </p>
 
                   <a
@@ -994,7 +1006,7 @@ export default function App() {
                 <div className="p-4 rounded-md bg-[#F4EFE6] border border-[#D8CEBF] text-xs text-[#6B5E51] space-y-1">
                   <p className="font-semibold text-[#18181B]">Direct Communication Standard</p>
                   <p>
-                    No unverified generic email addresses or automated lead resellers are used. Dhaara Estate operates through direct phone consultation.
+                    For this website concept, enquiries are routed through the verified public phone. Further contact details are to be confirmed with Dhaara Estate.
                   </p>
                 </div>
               </div>
@@ -1016,25 +1028,26 @@ export default function App() {
 
                   <div>
                     <h3 className="text-xl font-bold text-[#18181B]">
-                      Plan your consultation inquiry
+                      Plan your enquiry journey
                     </h3>
                     <p className="text-xs text-[#525753] mt-1">
-                      Select your intended property goal to preview how client requests will be organized on the final site.
+                      Select an intended goal to preview how a requirement could be organized. This does not submit an enquiry.
                     </p>
                   </div>
 
                   {/* Step 1: Select Journey */}
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-[#18181B] uppercase tracking-wider block">
+                    <p id="journey-choice-label" className="text-xs font-semibold text-[#18181B] uppercase tracking-wider block">
                       1. Requirement Type
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
+                    </p>
+                    <div className="grid grid-cols-3 gap-2" role="group" aria-labelledby="journey-choice-label">
                       {(['buying', 'selling', 'renting'] as const).map((journey) => (
                         <button
                           key={journey}
                           type="button"
                           onClick={() => setSelectedJourney(journey)}
-                          className={`py-2.5 px-3 rounded-md text-xs font-semibold capitalize border transition-all duration-200 active:scale-[0.98] text-center ${
+                          aria-pressed={selectedJourney === journey}
+                          className={`min-h-11 py-2.5 px-3 rounded-md text-xs font-semibold capitalize border transition-all duration-200 active:scale-[0.98] text-center focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51] ${
                             selectedJourney === journey
                               ? 'bg-[#1B2430] text-white border-[#1B2430] shadow-xs'
                               : 'bg-[#FAF8F5] text-[#525753] border-[#D8CEBF] hover:border-[#8A7B6B]'
@@ -1048,10 +1061,10 @@ export default function App() {
 
                   {/* Step 2: Select Property Category */}
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-[#18181B] uppercase tracking-wider block">
+                    <p id="property-choice-label" className="text-xs font-semibold text-[#18181B] uppercase tracking-wider block">
                       2. Property Category
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2" role="group" aria-labelledby="property-choice-label">
                       {[
                         'Residential Apartment',
                         'Tenement / House',
@@ -1064,7 +1077,8 @@ export default function App() {
                           key={type}
                           type="button"
                           onClick={() => setSelectedPropertyType(type)}
-                          className={`py-2 px-3 rounded-md text-xs text-left border transition-all duration-200 active:scale-[0.98] truncate ${
+                          aria-pressed={selectedPropertyType === type}
+                          className={`min-h-11 py-2 px-3 rounded-md text-xs text-left border transition-all duration-200 active:scale-[0.98] truncate focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51] ${
                             selectedPropertyType === type
                               ? 'bg-[#EFE9DF] text-[#18181B] border-[#C86D51] font-semibold'
                               : 'bg-[#FAF8F5] text-[#525753] border-[#D8CEBF] hover:border-[#8A7B6B]'
@@ -1083,6 +1097,7 @@ export default function App() {
                     animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                     className="p-4 rounded-lg bg-[#F4EFE6] border border-[#D8CEBF] space-y-2"
+                    aria-live="polite"
                   >
                     <div className="text-xs text-[#8A7B6B] uppercase tracking-wider font-mono">Current Selection</div>
                     <div className="flex flex-wrap items-center gap-2 text-sm text-[#18181B] font-medium">
@@ -1103,7 +1118,7 @@ export default function App() {
                     <div className="p-3 rounded-md bg-[#FAF8F5] border border-[#D8CEBF] text-xs text-[#525753] flex items-start gap-2">
                       <HelpCircle className="w-4 h-4 text-[#C86D51] shrink-0 mt-0.5" />
                       <div>
-                        <strong>Non-functional concept notice:</strong> In accordance with client demo requirements, this form does not simulate fake form submissions. To discuss this requirement directly with Dhaara Estate, call the verified number.
+                        <strong>Non-functional concept notice:</strong> This website concept does not submit enquiries. To discuss this requirement, call the verified public number.
                       </div>
                     </div>
 
@@ -1145,7 +1160,7 @@ export default function App() {
                 A focused digital presence and website concept for Dhaara Estate Maninagar, built around local property enquiries and direct communication.
               </p>
               <div className="pt-2 text-xs font-mono text-[#D4B996]">
-                PUBLIC LISTING VERIFIED • AHMEDABAD, GUJARAT
+                WEBSITE CONCEPT • AHMEDABAD, GUJARAT
               </div>
             </div>
 
@@ -1156,22 +1171,22 @@ export default function App() {
               </span>
               <ul className="space-y-2 text-sm text-[#A1A1AA]">
                 <li>
-                  <a href="#services" className="hover:text-white transition-colors">
+                  <a href="#services" className="hover:text-white transition-colors rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]">
                     Services & Journeys
                   </a>
                 </li>
                 <li>
-                  <a href="#why-dhaara" className="hover:text-white transition-colors">
+                  <a href="#why-dhaara" className="hover:text-white transition-colors rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]">
                     Why This Website Helps
                   </a>
                 </li>
                 <li>
-                  <a href="#local-presence" className="hover:text-white transition-colors">
+                  <a href="#local-presence" className="hover:text-white transition-colors rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]">
                     Local Presence (Maninagar)
                   </a>
                 </li>
                 <li>
-                  <a href="#contact" className="hover:text-white transition-colors">
+                  <a href="#contact" className="hover:text-white transition-colors rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]">
                     Direct Contact
                   </a>
                 </li>
@@ -1181,7 +1196,7 @@ export default function App() {
             {/* Column 3: Contact & Google Maps */}
             <div className="lg:col-span-4 space-y-4">
               <span className="text-xs font-semibold uppercase tracking-widest text-[#D4B996] block">
-                Verified Public Details
+                Public Listing Reference
               </span>
               <div className="space-y-2.5 text-sm">
                 <div className="flex items-start gap-2.5 text-[#A1A1AA]">
@@ -1190,7 +1205,7 @@ export default function App() {
                 </div>
                 <div className="flex items-center gap-2.5 text-[#A1A1AA]">
                   <Phone className="w-4 h-4 text-[#C86D51] shrink-0" />
-                  <a href={PHONE_TEL} className="hover:text-white font-mono font-medium text-white transition-colors">
+                  <a href={PHONE_TEL} className="hover:text-white font-mono font-medium text-white transition-colors rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]">
                     {PHONE_NUMBER}
                   </a>
                 </div>
@@ -1201,10 +1216,10 @@ export default function App() {
                   href={GOOGLE_MAPS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#2C302E] hover:bg-[#3E4441] text-xs font-medium text-[#FAF8F5] transition-colors border border-[#444A47]"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-[#2C302E] hover:bg-[#3E4441] text-xs font-medium text-[#FAF8F5] transition-colors border border-[#444A47] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]"
                 >
                   <MapPin className="w-3.5 h-3.5 text-[#D4B996]" />
-                  <span>Open Verified Google Maps Listing</span>
+                  <span>Open Google Maps Listing</span>
                   <ExternalLink className="w-3 h-3 opacity-60" />
                 </a>
               </div>
@@ -1222,7 +1237,7 @@ export default function App() {
           </div>
           
           <div className="mt-4 pt-4 border-t border-[#2C302E]/60 text-[11px] text-[#6B6B70] leading-relaxed text-center sm:text-left">
-            Disclaimer: This website is an independent client-ready digital concept prepared by SiteNerve using publicly verifiable Google Maps listing data for Dhaara Estate Maninagar. Unverified property inventories, prices, awards, or customer testimonials have been strictly excluded pending direct confirmation with Dhaara Estate.
+            Disclaimer: This website is an independent concept prepared by SiteNerve using publicly available Google Maps listing information for Dhaara Estate Maninagar. Property inventory, photos, prices, services, address, hours, email, reviews, and other details remain to be confirmed by Dhaara Estate.
           </div>
         </div>
       </motion.footer>
