@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Phone, 
   MapPin, 
@@ -19,7 +19,7 @@ import {
   Navigation,
   Sparkles
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, MotionConfig, useReducedMotion } from 'motion/react';
 
 const GOOGLE_MAPS_URL = "https://www.google.com/maps/place/Dhaara+Estate+Maninagar/data=!4m7!3m6!1s0x395e8533ecac9a07:0x384439d375539484!8m2!3d22.9979092!4d72.6080284!16s%2Fg%2F11hm0t89bw!19sChIJB5qs7DOFXjkRhJRTddM5RDg?authuser=0&hl=en";
 const PHONE_NUMBER = "+91 93282 00172";
@@ -28,6 +28,11 @@ const PHONE_TEL = "tel:+919328200172";
 export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('services');
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const firstMenuLinkRef = useRef<HTMLAnchorElement>(null);
+  const restoreMenuFocusRef = useRef(false);
+  const prefersReducedMotion = useReducedMotion();
 
   // Concept requirement builder state for interactive exploration (clearly non-fake)
   const [selectedJourney, setSelectedJourney] = useState<'buying' | 'selling' | 'renting'>('buying');
@@ -37,16 +42,75 @@ export default function App() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        restoreMenuFocusRef.current = true;
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    window.requestAnimationFrame(() => firstMenuLinkRef.current?.focus());
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    if (mobileMenuOpen || !restoreMenuFocusRef.current) return;
+
+    restoreMenuFocusRef.current = false;
+    menuButtonRef.current?.focus();
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const sections = ['services', 'why-dhaara', 'local-presence', 'contact']
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleSection = entries.find((entry) => entry.isIntersecting);
+        if (visibleSection) setActiveSection(visibleSection.target.id);
+      },
+      { rootMargin: '-35% 0px -55% 0px' },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
   const closeMobileMenu = () => setMobileMenuOpen(false);
+  const navItemClass = (section: string) => `relative text-sm font-medium px-1 rounded-xs transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51] after:absolute after:-bottom-2 after:left-1 after:right-1 after:h-px after:bg-[#C86D51] after:origin-left after:transition-transform after:duration-200 ${
+    activeSection === section
+      ? 'text-[#18181B] after:scale-x-100'
+      : 'text-[#4A4F4B] hover:text-[#18181B] after:scale-x-0 hover:after:scale-x-100'
+  }`;
+  const reveal = (delay = 0, distance = 20) =>
+    prefersReducedMotion
+      ? { initial: false }
+      : {
+          initial: { opacity: 0, y: distance },
+          whileInView: { opacity: 1, y: 0 },
+          viewport: { once: true, amount: 0.2 },
+          transition: { duration: 0.45, delay, ease: [0.16, 1, 0.3, 1] as const },
+        };
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="min-h-screen bg-[#FAF8F5] text-[#1F2421] selection:bg-[#EAD9C9] selection:text-[#18181B] font-sans">
       {/* Top verified advisory banner */}
-      <aside aria-label="Website Demo Notice" className="bg-[#18181B] text-[#D4B996] text-xs px-4 py-2 border-b border-[#2C302E]">
+      <motion.aside
+        aria-label="Website Demo Notice"
+        className="bg-[#18181B] text-[#D4B996] text-xs px-4 py-2 border-b border-[#2C302E]"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: -8 }}
+        animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+      >
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 rounded-full bg-[#C86D51] animate-pulse"></span>
@@ -65,15 +129,18 @@ export default function App() {
             </a>
           </div>
         </div>
-      </aside>
+      </motion.aside>
 
       {/* 1. Navigation */}
-      <header 
-        className={`sticky top-0 z-50 transition-all duration-300 ${
+      <motion.header
+        className={`sticky top-0 z-50 relative transition-all duration-300 ${
           scrolled 
             ? 'bg-[#FAF8F5]/95 backdrop-blur-md shadow-xs border-b border-[#E8E2D9]' 
             : 'bg-[#FAF8F5] border-b border-[#EFE9DF]'
         }`}
+        initial={prefersReducedMotion ? false : { opacity: 0, y: -12 }}
+        animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -104,25 +171,29 @@ export default function App() {
             <nav className="hidden md:flex items-center gap-8" aria-label="Main Navigation">
               <a 
                 href="#services" 
-                className="text-sm font-medium text-[#4A4F4B] hover:text-[#18181B] hover:underline underline-offset-8 decoration-[#C86D51] transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51] rounded-xs px-1"
+                className={navItemClass('services')}
+                aria-current={activeSection === 'services' ? 'page' : undefined}
               >
                 Services
               </a>
               <a 
                 href="#why-dhaara" 
-                className="text-sm font-medium text-[#4A4F4B] hover:text-[#18181B] hover:underline underline-offset-8 decoration-[#C86D51] transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51] rounded-xs px-1"
+                className={navItemClass('why-dhaara')}
+                aria-current={activeSection === 'why-dhaara' ? 'page' : undefined}
               >
                 Why Dhaara
               </a>
               <a 
                 href="#local-presence" 
-                className="text-sm font-medium text-[#4A4F4B] hover:text-[#18181B] hover:underline underline-offset-8 decoration-[#C86D51] transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51] rounded-xs px-1"
+                className={navItemClass('local-presence')}
+                aria-current={activeSection === 'local-presence' ? 'page' : undefined}
               >
                 Local Presence
               </a>
               <a 
                 href="#contact" 
-                className="text-sm font-medium text-[#4A4F4B] hover:text-[#18181B] hover:underline underline-offset-8 decoration-[#C86D51] transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51] rounded-xs px-1"
+                className={navItemClass('contact')}
+                aria-current={activeSection === 'contact' ? 'page' : undefined}
               >
                 Contact
               </a>
@@ -160,8 +231,9 @@ export default function App() {
                 <Phone className="w-4 h-4 text-[#D4B996]" />
               </a>
               <button
+                ref={menuButtonRef}
                 type="button"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={() => setMobileMenuOpen((open) => !open)}
                 className="inline-flex items-center justify-center w-11 h-11 rounded-md border border-[#D8CEBF] bg-[#FAF8F5] text-[#18181B] hover:bg-[#EFE9DF] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]"
                 aria-expanded={mobileMenuOpen}
                 aria-label="Toggle navigation menu"
@@ -175,15 +247,27 @@ export default function App() {
         {/* Mobile Navigation Drawer */}
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden border-b border-[#E8E2D9] bg-[#FAF8F5] px-4 pt-3 pb-6 shadow-lg"
-            >
+            <>
+              <motion.button
+                type="button"
+                aria-label="Close navigation menu"
+                className="fixed inset-0 top-20 z-40 bg-[#18181B]/15 md:hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={closeMobileMenu}
+              />
+              <motion.div
+                initial={prefersReducedMotion ? false : { opacity: 0, y: -12 }}
+                animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? undefined : { opacity: 0, y: -8 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute top-full inset-x-0 z-50 md:hidden border-b border-[#E8E2D9] bg-[#FAF8F5] px-4 pt-3 pb-6 shadow-lg"
+              >
               <nav className="flex flex-col space-y-3" aria-label="Mobile Navigation">
                 <a
+                  ref={firstMenuLinkRef}
                   href="#services"
                   onClick={closeMobileMenu}
                   className="px-3 py-2 text-base font-medium text-[#18181B] hover:bg-[#EFE9DF] rounded-md transition-colors"
@@ -231,44 +315,46 @@ export default function App() {
                   </a>
                 </div>
               </nav>
-            </motion.div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
-      </header>
+      </motion.header>
 
       <main id="main-content">
         {/* 2. Hero Section */}
         <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 border-b border-[#E8E2D9] bg-[#FAF8F5]">
           {/* Subtle architectural background grid */}
           <div className="absolute inset-0 bg-blueprint-fine pointer-events-none opacity-60" />
+          {!prefersReducedMotion && <div aria-hidden="true" className="blueprint-scan absolute inset-y-0 -left-1/3 w-1/3 pointer-events-none" />}
           
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
               {/* Left Column: Headline and Call-to-actions */}
               <div className="lg:col-span-7 space-y-8">
                 {/* Editorial Sub-badge */}
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EFE9DF] border border-[#D8CEBF] text-xs font-medium text-[#6B5E51]">
+                <motion.div {...reveal(0, 12)} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#EFE9DF] border border-[#D8CEBF] text-xs font-medium text-[#6B5E51]">
                   <span className="w-2 h-2 rounded-full bg-[#C86D51]"></span>
                   <span className="tracking-wide uppercase font-semibold">Verified Agency Profile</span>
                   <span className="text-[#A1A1AA]">•</span>
                   <span>Maninagar, Ahmedabad</span>
-                </div>
+                </motion.div>
 
-                <div className="space-y-4">
+                <motion.div {...reveal(0.08, 18)} className="space-y-4">
                   <h1 className="font-editorial text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-[#18181B] leading-[1.12]">
                     Property guidance with a clearer next step.
                   </h1>
                   <p className="text-lg sm:text-xl text-[#525753] leading-relaxed max-w-2xl">
                     A focused digital presence for Dhaara Estate Maninagar, built around local property enquiries and direct communication.
                   </p>
-                </div>
+                </motion.div>
 
                 {/* Hero Action Buttons */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+                <motion.div {...reveal(0.16, 16)} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                   <a
                     href={PHONE_TEL}
                     id="hero-call-button"
-                    className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-md text-base font-semibold text-white bg-[#1B2430] hover:bg-[#2C3849] border border-[#1B2430] hover:border-[#C86D51] transition-all shadow-md focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]"
+                    className="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-md text-base font-semibold text-white bg-[#1B2430] hover:bg-[#2C3849] border border-[#1B2430] hover:border-[#C86D51] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 shadow-md focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]"
                   >
                     <Phone className="w-5 h-5 text-[#D4B996]" />
                     <span>Call Dhaara Estate</span>
@@ -279,13 +365,13 @@ export default function App() {
                     target="_blank"
                     rel="noopener noreferrer"
                     id="hero-maps-button"
-                    className="inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-md text-base font-medium text-[#18181B] bg-[#EFE9DF] hover:bg-[#E5DDD0] border border-[#D4C8B5] transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]"
+                    className="inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-md text-base font-medium text-[#18181B] bg-[#EFE9DF] hover:bg-[#E5DDD0] border border-[#D4C8B5] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#C86D51]"
                   >
                     <MapPin className="w-5 h-5 text-[#C86D51]" />
                     <span>Open Google Maps</span>
                     <ArrowUpRight className="w-4 h-4 text-[#8A7B6B]" />
                   </a>
-                </div>
+                </motion.div>
 
                 {/* Verified facts teaser */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-[#E8E2D9]">
@@ -305,7 +391,7 @@ export default function App() {
               </div>
 
               {/* Right Column: Premium Animated Architectural Composition */}
-              <div className="lg:col-span-5 relative">
+              <motion.div {...reveal(0.2, 24)} className="lg:col-span-5 relative">
                 <div className="relative mx-auto max-w-md lg:max-w-none rounded-xl bg-[#F4EFE6] border border-[#D8CEBF] p-6 shadow-xl overflow-hidden">
                   {/* Blueprint Grid Lines & Coordinates */}
                   <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#D8CEBF] text-[11px] font-mono text-[#8A7B6B]">
@@ -318,7 +404,7 @@ export default function App() {
 
                   {/* SVG Abstract Architectural & Plot Composition */}
                   <div className="relative aspect-4/3 rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-4 flex items-center justify-center overflow-hidden">
-                    <svg 
+                    <motion.svg
                       className="w-full h-full" 
                       viewBox="0 0 400 300" 
                       fill="none" 
@@ -338,12 +424,15 @@ export default function App() {
                       <rect width="400" height="300" fill="url(#archGrid)" />
 
                       {/* Abstract Cadastral Plot Boundaries */}
-                      <path 
+                      <motion.path
                         d="M 40 220 L 130 140 L 260 170 L 360 100 L 350 250 L 50 250 Z" 
                         fill="url(#plotGradient)" 
                         stroke="#C86D51" 
                         strokeWidth="1.5" 
                         strokeDasharray="4 4"
+                        initial={prefersReducedMotion ? false : { pathLength: 0, opacity: 0 }}
+                        animate={prefersReducedMotion ? undefined : { pathLength: 1, opacity: 1 }}
+                        transition={{ duration: 1.1, delay: 0.45, ease: 'easeInOut' }}
                       />
 
                       {/* Structural Building Elevation Lines */}
@@ -381,7 +470,7 @@ export default function App() {
                       {/* Map Coordinate Marker Node */}
                       <circle cx="210" cy="60" r="4" fill="#C86D51" />
                       <circle cx="210" cy="60" r="10" stroke="#C86D51" strokeWidth="1" strokeOpacity="0.4" />
-                    </svg>
+                    </motion.svg>
 
                     {/* Floating architectural caption */}
                     <div className="absolute bottom-3 left-3 bg-[#18181B]/90 backdrop-blur-xs text-[#FAF8F5] text-[10px] px-2.5 py-1 rounded-sm font-mono border border-[#3E423F]">
@@ -395,7 +484,7 @@ export default function App() {
                     <span className="italic">Concept Architecture Graphic</span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>
@@ -485,7 +574,7 @@ export default function App() {
         </section>
 
         {/* 4. Services Section */}
-        <section id="services" className="py-20 bg-[#FAF8F5] border-b border-[#E8E2D9]" aria-labelledby="services-heading">
+        <motion.section {...reveal()} id="services" className="py-20 bg-[#FAF8F5] border-b border-[#E8E2D9]" aria-labelledby="services-heading">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center space-y-4 mb-14">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EFE9DF] text-xs font-semibold text-[#8A7B6B] border border-[#D8CEBF] uppercase tracking-wider">
@@ -502,7 +591,7 @@ export default function App() {
             {/* Three Service Journey Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Card 1: Property Buying Assistance */}
-              <div className="rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all hover:shadow-md flex flex-col justify-between group">
+              <motion.div {...reveal(0)} className="rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between group">
                 <div className="space-y-4">
                   <div className="w-12 h-12 rounded-md bg-[#1B2430] flex items-center justify-center text-[#D4B996] group-hover:bg-[#C86D51] group-hover:text-white transition-colors">
                     <Building2 className="w-6 h-6" />
@@ -543,10 +632,10 @@ export default function App() {
                     Inquire About Buying: {PHONE_NUMBER}
                   </a>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Card 2: Property Selling Assistance */}
-              <div className="rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all hover:shadow-md flex flex-col justify-between group">
+              <motion.div {...reveal(0.08)} className="rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between group">
                 <div className="space-y-4">
                   <div className="w-12 h-12 rounded-md bg-[#1B2430] flex items-center justify-center text-[#D4B996] group-hover:bg-[#C86D51] group-hover:text-white transition-colors">
                     <Layers className="w-6 h-6" />
@@ -587,10 +676,10 @@ export default function App() {
                     Inquire About Selling: {PHONE_NUMBER}
                   </a>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Card 3: Rental Enquiries */}
-              <div className="rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all hover:shadow-md flex flex-col justify-between group">
+              <motion.div {...reveal(0.16)} className="rounded-lg bg-[#FAF8F5] border border-[#D8CEBF] p-8 hover:border-[#C86D51] transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between group">
                 <div className="space-y-4">
                   <div className="w-12 h-12 rounded-md bg-[#1B2430] flex items-center justify-center text-[#D4B996] group-hover:bg-[#C86D51] group-hover:text-white transition-colors">
                     <Search className="w-6 h-6" />
@@ -631,7 +720,7 @@ export default function App() {
                     Inquire About Rentals: {PHONE_NUMBER}
                   </a>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Note on zero fake inventory */}
@@ -641,7 +730,7 @@ export default function App() {
               </p>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* 5. Why this website helps */}
         <section id="why-dhaara" className="py-20 bg-[#F4EFE6] border-b border-[#E8E2D9]" aria-labelledby="why-heading">
@@ -730,7 +819,7 @@ export default function App() {
         </section>
 
         {/* 6. Local Presence Section */}
-        <section id="local-presence" className="py-20 bg-[#FAF8F5] border-b border-[#E8E2D9]" aria-labelledby="local-presence-heading">
+        <motion.section {...reveal()} id="local-presence" className="py-20 bg-[#FAF8F5] border-b border-[#E8E2D9]" aria-labelledby="local-presence-heading">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="rounded-2xl bg-[#1B2430] text-[#FAF8F5] p-8 sm:p-12 lg:p-16 border border-[#2C3849] relative overflow-hidden shadow-2xl">
               {/* Architectural Contour and Grid Overlay */}
@@ -749,10 +838,10 @@ export default function App() {
 
               <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
                 <div className="lg:col-span-8 space-y-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2C3849] text-xs font-mono text-[#D4B996] border border-[#3E4D61]">
+                  <motion.div {...reveal(0.08, 12)} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2C3849] text-xs font-mono text-[#D4B996] border border-[#3E4D61]">
                     <Navigation className="w-3.5 h-3.5 text-[#C86D51]" />
                     AHMEDABAD • MANINAGAR SECTOR
-                  </div>
+                  </motion.div>
 
                   <h2 id="local-presence-heading" className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-white leading-tight">
                     Local property enquiries, made easier to start.
@@ -769,7 +858,7 @@ export default function App() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-md text-sm font-semibold text-[#18181B] bg-[#D4B996] hover:bg-[#E5DDD0] transition-colors shadow-sm"
                     >
-                      <MapPin className="w-4 h-4 text-[#C86D51]" />
+                      <motion.span initial={prefersReducedMotion ? false : { scale: 0.8, opacity: 0 }} whileInView={prefersReducedMotion ? undefined : { scale: 1, opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.35, ease: 'easeOut' }}><MapPin className="w-4 h-4 text-[#C86D51]" /></motion.span>
                       Open Google Maps
                       <ArrowUpRight className="w-4 h-4 text-[#18181B]" />
                     </a>
@@ -829,10 +918,10 @@ export default function App() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* 7. Contact Section */}
-        <section id="contact" className="py-20 bg-[#FAF8F5]" aria-labelledby="contact-heading">
+        <motion.section {...reveal()} id="contact" className="py-20 bg-[#FAF8F5]" aria-labelledby="contact-heading">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center space-y-4 mb-14">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EFE9DF] text-xs font-semibold text-[#8A7B6B] border border-[#D8CEBF] uppercase tracking-wider">
@@ -867,7 +956,7 @@ export default function App() {
 
                   <a
                     href={PHONE_TEL}
-                    className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-md bg-[#1B2430] hover:bg-[#2C3849] text-white font-semibold text-base shadow-sm border border-[#1B2430] transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-md bg-[#1B2430] hover:bg-[#2C3849] text-white font-semibold text-base shadow-sm border border-[#1B2430] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <Phone className="w-5 h-5 text-[#D4B996]" />
                     Call Dhaara Estate Now
@@ -945,7 +1034,7 @@ export default function App() {
                           key={journey}
                           type="button"
                           onClick={() => setSelectedJourney(journey)}
-                          className={`py-2.5 px-3 rounded-md text-xs font-semibold capitalize border transition-all text-center ${
+                          className={`py-2.5 px-3 rounded-md text-xs font-semibold capitalize border transition-all duration-200 active:scale-[0.98] text-center ${
                             selectedJourney === journey
                               ? 'bg-[#1B2430] text-white border-[#1B2430] shadow-xs'
                               : 'bg-[#FAF8F5] text-[#525753] border-[#D8CEBF] hover:border-[#8A7B6B]'
@@ -975,7 +1064,7 @@ export default function App() {
                           key={type}
                           type="button"
                           onClick={() => setSelectedPropertyType(type)}
-                          className={`py-2 px-3 rounded-md text-xs text-left border transition-all truncate ${
+                          className={`py-2 px-3 rounded-md text-xs text-left border transition-all duration-200 active:scale-[0.98] truncate ${
                             selectedPropertyType === type
                               ? 'bg-[#EFE9DF] text-[#18181B] border-[#C86D51] font-semibold'
                               : 'bg-[#FAF8F5] text-[#525753] border-[#D8CEBF] hover:border-[#8A7B6B]'
@@ -988,7 +1077,13 @@ export default function App() {
                   </div>
 
                   {/* Selected Summary Card */}
-                  <div className="p-4 rounded-lg bg-[#F4EFE6] border border-[#D8CEBF] space-y-2">
+                  <motion.div
+                    key={`${selectedJourney}-${selectedPropertyType}`}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 6 }}
+                    animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className="p-4 rounded-lg bg-[#F4EFE6] border border-[#D8CEBF] space-y-2"
+                  >
                     <div className="text-xs text-[#8A7B6B] uppercase tracking-wider font-mono">Current Selection</div>
                     <div className="flex flex-wrap items-center gap-2 text-sm text-[#18181B] font-medium">
                       <span className="px-2 py-0.5 rounded-sm bg-[#FAF8F5] border border-[#D8CEBF] capitalize">
@@ -1001,7 +1096,7 @@ export default function App() {
                       <span>•</span>
                       <span className="text-xs text-[#6B5E51]">Locality: Maninagar, Ahmedabad</span>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Concept Form Disclaimer & Direct Action */}
                   <div className="pt-2 space-y-3">
@@ -1014,7 +1109,7 @@ export default function App() {
 
                     <a
                       href={PHONE_TEL}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-md bg-[#C86D51] hover:bg-[#B85D43] text-white font-semibold text-sm transition-colors shadow-xs"
+                    className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-md bg-[#C86D51] hover:bg-[#B85D43] text-white font-semibold text-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 shadow-xs"
                     >
                       <Phone className="w-4 h-4 text-white" />
                       Discuss This Requirement: {PHONE_NUMBER}
@@ -1024,11 +1119,11 @@ export default function App() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
       </main>
 
       {/* 8. Footer */}
-      <footer className="bg-[#18181B] text-[#FAF8F5] border-t border-[#2C302E] pt-16 pb-12">
+      <motion.footer {...reveal()} className="bg-[#18181B] text-[#FAF8F5] border-t border-[#2C302E] pt-16 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-[#2C302E]">
             {/* Column 1: Identity & Verification */}
@@ -1130,7 +1225,8 @@ export default function App() {
             Disclaimer: This website is an independent client-ready digital concept prepared by SiteNerve using publicly verifiable Google Maps listing data for Dhaara Estate Maninagar. Unverified property inventories, prices, awards, or customer testimonials have been strictly excluded pending direct confirmation with Dhaara Estate.
           </div>
         </div>
-      </footer>
+      </motion.footer>
     </div>
+    </MotionConfig>
   );
 }
